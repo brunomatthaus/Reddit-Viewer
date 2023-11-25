@@ -7,10 +7,10 @@ import '../pages/comentaries.dart';
 
 class FeedPage extends StatefulWidget {
 
-  //Subreddit name is received from search bar
-  final String subredditName;
+  //Subreddit feed is received from search bar
+  final RedditFeed subredditFeed;
 
-  const FeedPage({super.key, required this.subredditName});
+  const FeedPage({super.key, required this.subredditFeed});
   
   @override
   State<FeedPage> createState() => _FeedPageState();
@@ -25,14 +25,17 @@ class _FeedPageState extends State<FeedPage> {
   void initState(){
     super.initState();
 
-    _fetchRedditPost(widget.subredditName);
+      setState(() {    
+        _redditFeed = widget.subredditFeed;
+      }); 
   }
 
-  _fetchRedditPost(String subredditName) async{
+  //Gets subreddit feed information
+  void _fetchRedditPost(String subredditName) async{
 
     try{
       final redditFeed = await _redditService.getFeed(subredditName);
-      setState(() {
+      setState(() {    
         _redditFeed = redditFeed;
       }); 
     }
@@ -41,12 +44,13 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
 
       appBar: AppBar(
-        title: Text("r/${widget.subredditName}", style: const TextStyle(color: Colors.white, fontSize: 36)),
+        title: Text("r/${widget.subredditFeed.postsList[0].subredditName}", style: const TextStyle(color: Colors.white, fontSize: 36)),
         backgroundColor: const Color(0xFFFF5700),
         centerTitle: true,
         elevation: 2,
@@ -54,16 +58,33 @@ class _FeedPageState extends State<FeedPage> {
 
       body: RefreshIndicator(
         onRefresh: () async {
-          _fetchRedditPost(widget.subredditName);
+          _fetchRedditPost(widget.subredditFeed.postsList[0].subredditName);
         },
         child:   
 
+          //Feed list of posts
           ListView.builder(
             itemCount: _redditFeed?.postsList.length,
             itemBuilder: (context, index) => Card(
+              
               child: ListTile(
                 title: Text(_redditFeed?.postsList[index].postTitle ?? "Loading.."),
-                subtitle: Text("Score: ${_redditFeed?.postsList[index].postScore} | Comments: ${_redditFeed?.postsList[index].postNumComments}"),
+                subtitle: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  const Icon(Icons.favorite, color: Colors.red),
+                                  Text(' ${_redditFeed?.postsList[index].postScore} | '),
+                                  const Icon(Icons.comment, color: Colors.grey),
+                                  Text(' ${_redditFeed?.postsList[index].postNumComments}'),
+                                ],
+                            ),
+                trailing: Image.network(_redditFeed?.postsList[index].postThumbnail ?? "",
+                                        height: 70.0,
+                                        width: 70.0,
+                                        errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                                          return const Text('');
+                                        },
+                          ),
                 onTap: (){
                           Navigator.push(
                             context,

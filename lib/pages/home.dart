@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
-import '../pages/feed.dart';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
+import 'package:reddit/services/reddit_service.dart';
+import 'package:reddit/models/model_post.dart';
+import '../pages/feed.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +21,8 @@ class _HomePageState extends State<HomePage>{
   @override
   void initState(){
     super.initState();
-  
+
+    //Search bar text field controller
     searchController = TextEditingController();
 
     // Add listener to check if search bar is empty and disable search button
@@ -34,6 +38,36 @@ class _HomePageState extends State<HomePage>{
     super.dispose();
   }
 
+  //Search subreddit function
+  void _searchSubreddit(String subredditName) async {
+
+    final redditService = RedditService();
+    
+    try{
+      final redditFeed = await redditService.getFeed(subredditName);
+      setState(() {
+        nextPage(redditFeed);
+      });
+    }
+    catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to load subreddit!')));
+      log(e.toString());
+    } 
+  }
+  
+  //Load subreddit feed page if subreddit has at least 1 post
+  void nextPage(RedditFeed targetFeed){
+
+    if(targetFeed.postsList.isNotEmpty){
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => FeedPage(subredditFeed: targetFeed))
+      );
+    }
+    else{
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('There are no posts in this subreddit!')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,10 +106,7 @@ class _HomePageState extends State<HomePage>{
                                   null : 
                                   () {
                                       String redditName = searchController.text;
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => FeedPage(subredditName: redditName))
-                                      );
+                                      _searchSubreddit(redditName.replaceAll(" ", ""));
                                   },
                     child: const Text("Search for subreddit"),
                     ),
@@ -85,3 +116,4 @@ class _HomePageState extends State<HomePage>{
     );
   }
 }
+

@@ -11,9 +11,7 @@ class RedditService
   // Method to get feed from a subreddit in json
   Future<RedditFeed> getFeed(String subredditName) async 
   {
-      String subredditNameNoSpaces = subredditName.replaceAll(' ', '');
-
-      final response = await http.get(Uri.parse("$baseURL$subredditNameNoSpaces.json"));
+      final response = await http.get(Uri.parse("$baseURL$subredditName.json"));
 
       if (response.statusCode == 200)
       {
@@ -28,9 +26,7 @@ class RedditService
   // Method to get commentaries from a subreddit post in json
   Future<RedditPostCommentaries> getCommentaries(String subredditName, String postId) async 
   {
-      String subredditNameNoSpaces = subredditName.replaceAll(' ', '');
-
-      final response = await http.get(Uri.parse("$baseURL$subredditNameNoSpaces/$postId.json"));
+      final response = await http.get(Uri.parse("$baseURL$subredditName/$postId.json"));
 
       if (response.statusCode == 200)
       {
