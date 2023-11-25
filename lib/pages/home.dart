@@ -5,6 +5,9 @@ import 'package:reddit/services/reddit_service.dart';
 import 'package:reddit/models/model_post.dart';
 import '../pages/feed.dart';
 
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -17,15 +20,20 @@ class _HomePageState extends State<HomePage>{
   //SearchBar text controller
   late TextEditingController searchController;
   bool disableSearchButton = true;
+  String hintSearchBar = "Try searching for 'FullDev'";
+  String previousText = "";
 
   @override
   void initState(){
     super.initState();
 
+    //Initialize speech to text plugin
+    _initSpeech();
+
     //Search bar text field controller
     searchController = TextEditingController();
 
-    // Add listener to check if search bar is empty and disable search button
+    //Add listener to check if search bar is empty and disable search button
     searchController.addListener(() {
       disableSearchButton = searchController.text.isEmpty;
       setState(() => disableSearchButton);
@@ -69,6 +77,43 @@ class _HomePageState extends State<HomePage>{
     }
   }
 
+  //Speech to text plugin
+  //Original code from: https://pub.dev/packages/speech_to_text
+  final SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize();
+    setState(() {});
+  }
+
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    setState(() {
+      previousText = searchController.text;
+      searchController.text = "";
+      hintSearchBar = "Listening..";
+    });
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {
+      searchController.text = previousText;
+      hintSearchBar = "Try searching for 'FullDev'";
+    });
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      previousText = result.recognizedWords;
+      searchController.text = result.recognizedWords;
+      hintSearchBar = "Try searching for 'FullDev'";
+    });
+  }
+  //////
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -86,13 +131,14 @@ class _HomePageState extends State<HomePage>{
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             
+            //Search bar
             Container(
               margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
               child: TextField(
                 controller: searchController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
-                  hintText: "Try searching for 'FullDev'",
+                  hintText: hintSearchBar,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: const BorderSide(color: Color(0xFFFF5700))
@@ -101,6 +147,7 @@ class _HomePageState extends State<HomePage>{
               ),
             ),
             
+            //Search button
             OutlinedButton(
               onPressed:    
                 disableSearchButton ? null : 
@@ -109,6 +156,12 @@ class _HomePageState extends State<HomePage>{
                     _searchSubreddit(redditName.replaceAll(" ", ""));
                 },
               child: const Text("Search for subreddit"),
+            ),
+
+            //Speach to search bar button
+            OutlinedButton(
+              onPressed: _speechToText.isNotListening ? _startListening : _stopListening,
+              child: const Icon(Icons.mic),
             ),
           ]
         )
