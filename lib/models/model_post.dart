@@ -12,6 +12,7 @@ class RedditPost {
   final String postURL;
 
   RedditPost({  
+
     required this.subredditName,    
     required this.postId,
     required this.postTitle,
@@ -22,23 +23,22 @@ class RedditPost {
     required this.postAuthor,
     required this.postText,
     required this.postURL,
-
   });    
 
   factory RedditPost.fromJson(Map<String, dynamic> json) {
 
-    return RedditPost(  subredditName: json['data']['subreddit'],
-                        postId: json['data']['id'],
-                        postTitle: json['data']['title'],
-                        postScore: json['data']['score'],
-                        postNumComments: json['data']['num_comments'],
-                        postThumbnail: json['data']['thumbnail'],
-                        
-                        postAuthor: json['data']['author'],
-                        postText: json['data']['selftext'],
-                        postURL: json['data']['url']
-                        );
-
+    return RedditPost(  
+      subredditName: json['data']['subreddit'],
+      postId: json['data']['id'],
+      postTitle: json['data']['title'],
+      postScore: json['data']['score'],
+      postNumComments: json['data']['num_comments'],
+      postThumbnail: json['data']['thumbnail'],
+      
+      postAuthor: json['data']['author'],
+      postText: json['data']['selftext'],
+      postURL: json['data']['url']
+    );
   }
 }
 
@@ -55,6 +55,7 @@ class RedditFeed {
     if(json['data']['children'] != null){
 
       postsList=<RedditPost>[];
+      
       for (var element in (json['data']['children'] as List)) {
         postsList.add(RedditPost.fromJson(element));
       }

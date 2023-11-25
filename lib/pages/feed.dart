@@ -30,7 +30,7 @@ class _FeedPageState extends State<FeedPage> {
       }); 
   }
 
-  //Gets subreddit feed information
+  //Gets subreddit feed information (used on pull to refresh)
   void _fetchRedditPost(String subredditName) async{
 
     try{
@@ -56,6 +56,7 @@ class _FeedPageState extends State<FeedPage> {
         elevation: 2,
       ),
 
+      //Pull to refresh feature
       body: RefreshIndicator(
         onRefresh: () async {
           _fetchRedditPost(widget.subredditFeed.postsList[0].subredditName);

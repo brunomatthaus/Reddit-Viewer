@@ -21,6 +21,7 @@ class _CommentaryPageState extends State<CommentaryPage> {
 
   final _redditService = RedditService();
   RedditPostCommentaries? _redditPostCommentaries;
+  int commentaryListSize = 0;
 
   @override
   void initState(){
@@ -36,6 +37,7 @@ class _CommentaryPageState extends State<CommentaryPage> {
       final redditPostCommentaries = await _redditService.getCommentaries(subredditName, subredditPostId);
       setState(() {
         _redditPostCommentaries = redditPostCommentaries;
+        commentaryListSize = redditPostCommentaries.commentaryList.length;
       }); 
     }
     catch(e){
@@ -43,13 +45,13 @@ class _CommentaryPageState extends State<CommentaryPage> {
     }
   }
 
+  //Launch external link url
   void _launchURL(String url) async{
 
     if (!await launchUrl(Uri.parse(url))) {
       throw Exception('Could not launch external link');
+    }
   }
-
-}
 
   @override
   Widget build(BuildContext context){
@@ -62,94 +64,86 @@ class _CommentaryPageState extends State<CommentaryPage> {
         elevation: 2,
       ),
 
-      body: SafeArea(    
-        top: true,
+      body: SingleChildScrollView(
+    
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
+        
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
 
-          child: SingleChildScrollView(
-      
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
-                
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              //Post details
+
+              //Author
+              Text(widget.subredditPost.postAuthor, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18), textAlign: TextAlign.justify),
+              const SizedBox(height: 8),
+
+              //Title
+              Text(widget.subredditPost.postTitle, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.justify),
+              const SizedBox(height: 8),
+
+              //Text
+              Text(widget.subredditPost.postText, style: const TextStyle(color: Colors.black, fontSize: 16), textAlign: TextAlign.justify),
+              const SizedBox(height: 8),
+
+              //Image
+              Image.network(
+                widget.subredditPost.postURL,
+                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                  return const Text("");
+                },
+              ),
+
+              //Button to external link
+              OutlinedButton(
+                onPressed:  () {_launchURL(widget.subredditPost.postURL);},
+                child: const Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
+                    Icon(Icons.link, color: Colors.lightBlue),
+                    Text("  External Link"),
+                  ],
+                ), 
+              ),
 
-                    //Post details
-
-                    //Author
-                    Text(widget.subredditPost.postAuthor, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18), textAlign: TextAlign.justify),
-                    const SizedBox(height: 8),
-
-                    //Title
-                    Text(widget.subredditPost.postTitle, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.justify),
-                    const SizedBox(height: 8),
-
-                    //Text
-                    Text(widget.subredditPost.postText, style: const TextStyle(color: Colors.black, fontSize: 16), textAlign: TextAlign.justify),
-                    const SizedBox(height: 8),
-
-                    //Image
-                    Image.network(widget.subredditPost.postURL,
-                                  errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                                    return const Text("");
-                                  },
-                    ),
-
-                    //Button to external link
-                    OutlinedButton(
-                      onPressed:  () {_launchURL(widget.subredditPost.postURL);},
-                      child: const Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    Icon(Icons.link, color: Colors.lightBlue),
-                                    Text("  External Link"),
-                                  ],
-                      ), 
-                    ),
-
-                    //Score
-                    Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            const Icon(Icons.favorite, color: Colors.red),
-                            Text(widget.subredditPost.postScore.toString()),
-                          ],
-                        ), 
-                    const SizedBox(height: 16),
-                    
-/*
-                    //Commentary list
-                    Expanded(
-                      child:
-                      ListView.builder(
-                        padding: EdgeInsets.zero,
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: _redditPostCommentaries?.commentaryList.length,
-                        itemBuilder: (context, index) => Card(
-                          child: ListTile(
-                            title: Text(_redditPostCommentaries?.commentaryList[index].commentAuthor ?? "Loading..", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                            subtitle: Text(_redditPostCommentaries?.commentaryList[index].commentText ?? "Loading.."),
-                            trailing: Wrap(
-                                          crossAxisAlignment: WrapCrossAlignment.center,
-                                          children: [
-                                            const Icon(Icons.favorite, color: Colors.red),
-                                            Text('${_redditPostCommentaries?.commentaryList[index].commentScore.toString()}'),
-                                          ],
-                                      ) 
-                          )
-                        )
-                      )
-                    ),*/
-                  ]
+              //Score
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Icon(Icons.favorite, color: Colors.red),
+                  Text(widget.subredditPost.postScore.toString()),
+                ],
+              ), 
+              const SizedBox(height: 16),
+            
+              //Commentary list
+              ListView.builder(
+                itemCount: commentaryListSize.toInt(),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) => Card(
+                  child: ListTile(
+                    title: Text(_redditPostCommentaries?.commentaryList[index].commentAuthor ?? "Loading..", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    subtitle: Text(_redditPostCommentaries?.commentaryList[index].commentText ?? "Loading.."),
+                    trailing: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Icon(Icons.favorite, color: Colors.red),
+                        Text('${_redditPostCommentaries?.commentaryList[index].commentScore.toString()}'),
+                      ],
+                    ) 
+                  )
                 )
               ),
-            )            
+                    
+            ]
+
           )
+        )
+      )            
 
-          
-      );
-
+    );
   }
 }

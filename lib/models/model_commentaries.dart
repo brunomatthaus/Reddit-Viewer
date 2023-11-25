@@ -12,10 +12,15 @@ class RedditCommentary {
 
   factory RedditCommentary.fromJson(Map<String, dynamic> json) {
 
-    return RedditCommentary(  commentAuthor: json['data']['author'],
-                              commentText: json['data']['body'],
-                              commentScore: json['data']['score']);
+    String author = json['data']['author'] ?? "null";
+    String text = json['data']['body'] ?? "null";
+    int score = json['data']['score'] ?? 0;
 
+    return RedditCommentary(  
+      commentAuthor: author,
+      commentText: text,
+      commentScore: score
+    );
   }
 }
 
@@ -32,6 +37,7 @@ class RedditPostCommentaries {
     if(json[1]['data']['children'] != null){
 
       commentaryList=<RedditCommentary>[];
+      
       for (var element in (json[1]['data']['children'] as List)) {
         commentaryList.add(RedditCommentary.fromJson(element));
       }

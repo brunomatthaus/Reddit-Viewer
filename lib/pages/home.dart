@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage>{
     super.dispose();
   }
 
-  //Search subreddit function
+  //Searches for subreddit 
   void _searchSubreddit(String subredditName) async {
 
     final redditService = RedditService();
@@ -83,37 +83,39 @@ class _HomePageState extends State<HomePage>{
 
       body: Center(
         child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.search),
-                        hintText: "Try searching for 'FullDev'",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide: const BorderSide(color: Color(0xFFFF5700))
-                        )
-                      ),
-                    ),
-                  ),
-                  
-                  OutlinedButton(
-                    onPressed:  disableSearchButton ? 
-                                  null : 
-                                  () {
-                                      String redditName = searchController.text;
-                                      _searchSubreddit(redditName.replaceAll(" ", ""));
-                                  },
-                    child: const Text("Search for subreddit"),
-                    ),
-                ])
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            
+            Container(
+              margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: "Try searching for 'FullDev'",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFFFF5700))
+                  )
+                ),
+              ),
+            ),
+            
+            OutlinedButton(
+              onPressed:    
+                disableSearchButton ? null : 
+                () {
+                    String redditName = searchController.text;
+                    _searchSubreddit(redditName.replaceAll(" ", ""));
+                },
+              child: const Text("Search for subreddit"),
+            ),
+          ]
+        )
       )
 
     );
+    
   }
 }
 
