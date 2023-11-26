@@ -18,8 +18,8 @@ Libraries / Plugins used:
 
 ### Instalation
 
-1. Download and open project on Visual Studio Code.
-2. Use the terminal to enter command "flutter build apk --release". 
+1. Have Flutter instaled on the machine.
+2. Use the terminal to navigate to project root folder and enter command "flutter build apk --release". 
 3. Install generated apk on android device.
 4. Run the application.
 
