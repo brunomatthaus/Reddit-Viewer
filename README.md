@@ -18,10 +18,11 @@ Libraries / Plugins used:
 
 ### Instalation
 
-1. Have Flutter instaled on the machine.
-2. Use the terminal to navigate to project root folder and enter command "flutter build apk --release". 
-3. Install generated apk on android device.
-4. Run the application.
+1. Have Flutter instaled and working on the machine.
+2. Use the terminal to navigate to project root folder and enter command "flutter pub get".
+3. Then enter the command "flutter build apk --release". 
+4. Install generated apk on android device.
+5. Run the application.
 
 ### Using the app
 
